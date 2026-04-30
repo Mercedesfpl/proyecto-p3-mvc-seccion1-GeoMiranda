@@ -17,15 +17,15 @@ class Config:
     STATIC_FOLDER = "views/static/"
 
     # --- Configuración de JWT y Cookies ---
-    JWT_SECRET_KEY = "abhgtfrdertyuhgtrdfrtgfde12356478256424"  # ¡Cámbiala!
+    JWT_SECRET_KEY = "abhgtfrdertyuhgtrdfrtgfde12356478256424"
     # 1. Decirle a la extensión que busque los tokens en las cookies
     JWT_TOKEN_LOCATION = ["cookies"]
-    # 2. Hacer que la cookie sea HttpOnly e insegura en desarrollo (cambiar en producción)
+    # 2. Hacer que la cookie sea HttpOnly e insegura en desarrollo
     JWT_COOKIE_SECURE = False  # Usar True en producción con HTTPS
-    JWT_COOKIE_CSRF_PROTECT = False  # HABILITAR protección CSRF (ver sección final)
+    JWT_COOKIE_CSRF_PROTECT = False  # HABILITAR protección CSRF
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)  # Tokens de acceso expiran en 1 hora
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)  # Refresh token válido por 30 días
     JWT_SAME_SITE = "Lax"
-    # 3. Limitar las rutas donde se envían las cookies (buena práctica)
+    # 3. Limitar las rutas donde se envían las cookies
     JWT_ACCESS_COOKIE_PATH = "/"  # Se envía solo a rutas que empiezan con /api/
     JWT_REFRESH_COOKIE_PATH = "/"  # El refresh solo a /token/refresh

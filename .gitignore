@@ -1,7 +1,9 @@
-# Python
+
 __pycache__/
 *.py[cod]
 *$py.class
+migrations/
+
 
 # Entornos virtuales
 venv/
@@ -11,5 +13,3 @@ env/
 # Variables de entorno
 .env
 
-# Base de datos local (si usas SQLite)
-*.sqlite3
