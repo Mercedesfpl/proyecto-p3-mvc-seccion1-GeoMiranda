@@ -1,10 +1,15 @@
 from flask import jsonify
 from flask_mail import Message
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 from ..models.userModels import UserSession
 from ..models.models import Usuario
-from ..models.exceptions import UserNotValid, UserNotFound, UserAlreadyExists
+from ..models.exceptions import (
+    UserNotValid,
+    UserNotFound,
+    UserAlreadyExists,
+    ResourceNotValid,
+)
 from app.extensions import db, mail
 from ..database.connection import (
     obtener_usuario_por_email,
@@ -52,7 +57,7 @@ def register(userData: UserSession) -> UserSession:
         raise UserAlreadyExists("El correo electrónico ya está registrado")
 
     if Usuario.formatPass(userData.password):
-        raise UserNotValid("La contraseña no cumple con los requsitos")
+        raise ResourceNotValid("password", "No cumple con los parametros necesarios")
 
     if not Usuario.formatEmail(userData.email):
         raise UserNotValid("El email es invalido")
@@ -69,6 +74,7 @@ def register(userData: UserSession) -> UserSession:
         raise UserNotValid("ha ocurrido un error inesperado")
 
     response = success_response(message="Registro exitoso")
+    login_user(newUser)
 
     return response
 
@@ -93,62 +99,61 @@ def request_password_reset(userData: UserSession) -> UserSession:
 
 def verify_reset_code(userData: UserSession, code):
     """Verifica si el código proporcionado es válido y no ha expirado."""
-    print("el code en controller----------->", code)
-    user = Usuario.query.filter_by(email=userData.email).first()
+    user = obtener_usuario_por_email(userData.email)
 
     if not user:
         # Por seguridad, no revelamos si el email existe
-        raise UserNotValid("Si el correo existe, se le envira un codigo de seguridad")
+        raise ResourceNotValid(
+            nombre_del_recurso="Usuario", rason="Usuario inexistente"
+        )
 
     if not user.verify_reset_code(code):
-        return jsonify({"error": "Código inválido o expirado."}), 400
+        raise UserNotValid(message="El codigo ha expirado o es invalido")
 
     # Si el código es válido, puedes devolver un token adicional para la siguiente etapa
     # o simplemente indicar éxito. Por simplicidad, devolvemos éxito.
-    return (
-        jsonify(
-            {
-                "mensaje": "Código verificado correctamente. Ahora puedes restablecer tu contraseña."
-            }
-        ),
-        200,
+    response = success_response(
+        message="Cambio de clave exitoso. Ya puedes ingresar con tu nueva clave"
     )
+    return response
 
 
 def reset_password(userData: UserSession, code):
-    print("el code en controller----------->", code)
     """Restablece la contraseña del usuario si el código es válido."""
-    user = Usuario.query.filter_by(email=userData.email).first()
+    user = obtener_usuario_por_email(userData.email)
 
     if not user:
-        return jsonify({"error": "Código inválido o expirado."}), 400
+        raise UserNotValid(message="El codigo ha expirado o es invalido")
 
     if not user.verify_reset_code(code):
-        return jsonify({"error": "Código inválido o expirado."}), 400
+        raise UserNotValid(message="El codigo ha expirado o es invalido")
 
     # Validamos el formato de la nueva contraseña usando tu propio código
-    print(userData.password)
-    if not Usuario.formatPass(userData.password):
-        return (
-            jsonify(
-                {
-                    "error": "La contraseña debe tener entre 8 y 15 caracteres, incluir al menos una mayúscula, una minúscula, un número y un carácter especial (!@#$%&/)."
-                }
-            ),
-            400,
-        )
+
+    if not user.formatPass(userData.password):
+        raise ResourceNotValid("password", "No cumple con los parametros necesarios")
 
     # Generamos el hash y guardamos la nueva contraseña
     user.generateHass(userData.password)  # Usamos el método que ya tienes en tu modelo
     user.clear_reset_code()
-    db.session.commit()
+    if not guardar_datos():
+        raise UserNotValid(message="Ha ocurrido algo inesperado")
 
-    return (
-        jsonify(
-            {
-                "mensaje": "Contraseña restablecida con éxito. Por favor, inicia sesión con tu nueva contraseña."
-            }
-        ),
-        200,
+    return success_response(message="Su clave ha sido cambiada con exito")
+
+
+def verificar_Email(code):
+
+    if not current_user.is_authenticated:
+        logout_user
+        raise ResourceNotValid(
+            nombre_del_recurso="Usuario", rason="Usuario inexistente"
+        )
+
+    if not current_user.verify_reset_code(code):
+        raise UserNotValid(message="El codigo ha expirado o es invalido")
+
+    response = success_response(
+        message="Se ha verficado correctamente tu correo electronico"
     )
-    # No se debe iniciar sesión automáticamente
+    return response
