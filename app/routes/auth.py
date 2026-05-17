@@ -1,7 +1,4 @@
-from flask import (
-    Blueprint,
-    request,
-)
+from flask import Blueprint, request, url_for, redirect, render_template
 from flask_jwt_extended import (
     jwt_required,
 )
@@ -53,7 +50,6 @@ def verify_reset_code():
     data = request.get_json()
     usuario = UserSession(email=data.get("email"))
     code = data.get("code")
-    print("-----El codigo en rootus----", code)
 
     return userControllers.verify_reset_code(usuario, code)
 
@@ -66,3 +62,8 @@ def reset_password():
     code = data.get("code")
 
     return userControllers.reset_password(usuario, code)
+
+
+@auth_scope.route("/vistas", methods=["GET", "POST"])
+def vista():
+    return userControllers.show_dashboar()

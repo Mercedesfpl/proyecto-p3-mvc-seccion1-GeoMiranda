@@ -13,8 +13,8 @@ class Config:
     DEBUG = True
     ENCRYPT_DB = True
 
-    TEMPLATE_FOLDER = "views/templates/"
-    STATIC_FOLDER = "views/static/"
+    TEMPLATE_FOLDER = "frontend/views"
+    STATIC_FOLDER = "frontend/static"
 
     # --- Configuración de JWT y Cookies ---
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")

@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, render_template
 from flask_mail import Message
 from flask_login import login_user, logout_user, current_user
 
@@ -157,3 +157,19 @@ def verificar_Email(code):
         message="Se ha verficado correctamente tu correo electronico"
     )
     return response
+
+
+def show_dashboar():
+    return render_template("dashboard.html")
+
+
+def show_rutas():
+    return render_template("rutas.html")
+
+
+def show_flota():
+    return render_template("flota.html")
+
+
+def show_reportes():
+    return render_template("reportes.html")
