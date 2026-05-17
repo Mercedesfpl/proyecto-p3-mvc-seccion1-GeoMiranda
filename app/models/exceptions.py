@@ -26,3 +26,34 @@ class UserNotValid(UserError):
     def __init__(self, message="Los datos del usuario no son válidos"):
         self.message = message
         super().__init__(self.message)
+
+
+# exceptions.py
+class ResourceError(Exception):
+    """Base para errores de recursos"""
+
+    pass
+
+
+class ResourceNotFound(ResourceError):
+    """Excepción para un recorso que no se encuentra"""
+
+    def __init__(self, nombre_del_recurso, identificador=None):
+        msg = f"{nombre_del_recurso} no encontrado" + (
+            f": {identificador}" if identificador else ""
+        )
+        super().__init__(msg)
+
+
+class ResourceAlreadyExists(ResourceError):
+    """Excepción"""
+
+    def __init__(self, nombre_del_recurso, identificador):
+        super().__init__(f"{nombre_del_recurso} ya existe: {identificador}")
+
+
+class ResourceNotValid(ResourceError):
+    """Excepción para un recurso invalido"""
+
+    def __init__(self, nombre_del_recurso, rason):
+        super().__init__(f"{nombre_del_recurso} inválido: {rason}")

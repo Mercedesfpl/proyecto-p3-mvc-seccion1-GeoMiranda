@@ -1,5 +1,12 @@
 from flask import jsonify, Blueprint, Response
-from ..models.exceptions import UserAlreadyExists, UserNotFound, UserNotValid
+from ..models.exceptions import (
+    UserAlreadyExists,
+    UserNotFound,
+    UserNotValid,
+    ResourceNotFound,
+    ResourceAlreadyExists,
+    ResourceNotValid,
+)
 
 errors_scope = Blueprint("errors", __name__)
 
@@ -33,3 +40,18 @@ def handle_bad_request(error: Exception) -> Response:
     response = __generate_error_response(error)
     response.status_code = 400
     return response
+
+
+@errors_scope.app_errorhandler(ResourceNotFound)
+def handle_not_found(error):
+    return jsonify({"ErrorType": type(error).__name__, "Message": str(error)}), 404
+
+
+@errors_scope.app_errorhandler(ResourceAlreadyExists)
+def handle_conflict(error):
+    return jsonify({"ErrorType": type(error).__name__, "Message": str(error)}), 409
+
+
+@errors_scope.app_errorhandler(ResourceNotValid)
+def handle_bad_request(error):
+    return jsonify({"ErrorType": type(error).__name__, "Message": str(error)}), 400

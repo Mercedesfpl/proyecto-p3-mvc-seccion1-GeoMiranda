@@ -15,8 +15,8 @@ class Usuario(db.Model, UserMixin):
     password = db.Column(db.String(255), nullable=False)
     isAdmin = db.Column(db.Boolean, default=False)
     rol = db.Column(db.String(20), default="usuario")
-    reset_code = db.Column(db.String(10), nullable=True)  # Código de 6 dígitos
-    reset_code_expires = db.Column(db.DateTime, nullable=True)  # Fecha de expiración
+    reset_code = db.Column(db.String(10), nullable=True)
+    reset_code_expires = db.Column(db.DateTime, nullable=True)
     timestamp = db.Column(db.DateTime, default=datetime.now, index=True)
 
     def verificar_password(self, passwordPlano):
@@ -33,7 +33,7 @@ class Usuario(db.Model, UserMixin):
 
         return UserSession(id=self.id, email=self.email, isAdmin=self.isAdmin)
 
-    def formatPass(passwordPlano):
+    def formatPass(self, passwordPlano):
         """Verifica si el formato cumple con las valdaciones propias del modelo"""
 
         if len(passwordPlano) < 8 or len(passwordPlano) > 15:
@@ -69,14 +69,7 @@ class Usuario(db.Model, UserMixin):
 
     def verify_reset_code(self, code):
         """Verifica si el código proporcionado es válido y no ha expirado."""
-        print(
-            "el codigo----->",
-            code,
-            "  El codigo de la bd------>",
-            self.reset_code,
-            "El codigo expirados----->",
-            self.reset_code_expires,
-        )
+
         db_code = str(self.reset_code)
         input_code = str(code)
         if self.reset_code and self.reset_code_expires:
