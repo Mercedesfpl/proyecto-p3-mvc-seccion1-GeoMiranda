@@ -2,15 +2,15 @@
 from flask_socketio import emit
 from app.extensions import socketIO
 
-@socketio.on('connect') 
+@socketIO.on('connect') 
 def handle_connection():
     print("f Cliente conectado: {request.sid}.")
 
-@socketio.on('disconnect') 
+@socketIO.on('disconnect') 
 def handle_disconnect():
     print("f Cliente desconectado: {request.sid}.")
 
-@socketio.on('ubicacion_bus') 
+@socketIO.on('ubicacion_bus') 
 def handle_disconnect(data):
     #esta función recibe la información de un ESP32 o simulación
     busID = data.get("bus_ID") 
